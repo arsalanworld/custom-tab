@@ -5,6 +5,11 @@
 
 
 Demonstration of Creating Dynamic Tabs in magento2-module.
+
+
+![Dynamic Tabs](https://knowthemage.com/wp-content/uploads/2019/02/screen_dynamic_tabs.png)
+
+
 * Lets go a head and initialize our module:
 ```
 <?xml version="1.0" ?>
@@ -250,5 +255,3 @@ class Description
     }
 }
 ```
-
-![Dynamic Tabs](https://knowthemage.com/wp-content/uploads/2019/02/screen_dynamic_tabs.png)
