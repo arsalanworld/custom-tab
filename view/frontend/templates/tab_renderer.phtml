@@ -1,0 +1,15 @@
+<?php
+/**
+ * @var \Magento\Catalog\Block\Product\View $block
+ */
+?>
+<?php
+if (!empty($block->getJsLayout())) {
+    $jsLayout = \Zend_Json::decode($block->getJsLayout());
+    foreach ($jsLayout as $layout) {
+        ?>
+        <h1 style="color: #ff6e17"><?= $layout['title']; ?></h1>
+        <div><?= $layout['description']; ?></div>
+        <?php
+    }
+}
