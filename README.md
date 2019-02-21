@@ -1,7 +1,7 @@
 # Arsal_CustomTab - 1.0.0
 
 ###### Installation:
-> composer require arsal/custom-tab
+> composer require arsal/custom-tab:dev-master
 
 
 Demonstration of Creating Dynamic Tabs in magento2-module.
