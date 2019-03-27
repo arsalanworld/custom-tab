@@ -7,7 +7,7 @@
 Demonstration of Creating Dynamic Tabs in magento2-module.
 
 
-![Dynamic Tabs](https://knowthemage.com/wp-content/uploads/2019/02/screen_dynamic_tabs.png)
+![Dynamic Tabs](https://knowthemage.com/wp-content/uploads/2019/03/screen_kw_post.png)
 
 
 * Lets go a head and initialize our module:
@@ -48,15 +48,30 @@ class TabConfig
     private $tabs = [
         'tabA' =>  [
             'title'         =>  'Custom Tab A',
-            'description'      =>  'Custom Tab A is right here !'
+            'description'   =>  'Custom Tab A is right here !',
+            'sortOrder'     =>  50
         ],
         'tabB'  =>  [
-            'title' =>  'New Custom Tab B',
-            'description'   =>  '<p>Tab B information goes here.</p>'
+            'title'         =>  'Recently Viewed',
+            'type'          =>  'template',
+            'data'          =>  [
+                "type"      =>  "Magento\Reports\Block\Product\Widget\Viewed",
+                "name"      =>  "custom.recently.view.products",
+                "template"  =>  "Magento_Reports::widget/viewed/content/viewed_list.phtml"
+            ],
+            'description'   =>  '',
+            'sortOrder'     =>  45
         ],
-        'tabC'  =>  [
-            'title' =>  'Test Custom Tab C',
-            'description'   =>  '<p>This is C Tab now</p>'
+        'tabC'  => [
+            'title'         =>  'Lorem Ipsum Tab',
+            'type'          =>  'template',
+            'data'          =>  [
+                "type"      =>  "Magento\Framework\View\Element\Template",
+                "name"      =>  "lorem.ipsum",
+                "template"  =>  "Arsal_CustomTab::template_c.phtml"
+            ],
+            'description'   =>  '',
+            'sortOrder'     =>  45
         ]
     ];
  
@@ -69,6 +84,7 @@ class TabConfig
     }
  
 }
+
 ```
 
 * Next step is the injection of this data to block and adding these blocks will be treated as child of block :
@@ -177,10 +193,16 @@ class NewTab implements ObserverInterface
 if (!empty($block->getJsLayout())) {
     $jsLayout = \Zend_Json::decode($block->getJsLayout());
     foreach ($jsLayout as $layout) {
-        ?>
-        <h1 style="color: #ff6e17"><?= $layout['title']; ?></h1>
-        <div><?= $layout['description']; ?></div>
-        <?php
+        if (isset($layout['type']) && 'template' === $layout['type'] && isset($layout['data'])){
+            echo $this->getLayout()->createBlock($layout['data']['type'])
+                ->setDisplayType($layout['data']['name'])
+                ->setTemplate($layout['data']['template'])->toHtml();
+        } else {
+            ?>
+            <h1><?= $layout['title']; ?></h1>
+            <div><?= $layout['description']; ?></div>
+            <?php
+        }
     }
 }
 ```
@@ -203,7 +225,7 @@ if (!empty($block->getJsLayout())) {
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
  
-    <type name="Magento\Catalog\Block\Product\View\Description">
+    <type name="Magento\Catalog\Block\Product\View\Details">
         <plugin name="arsal_product_view_description" type="Arsal\CustomTab\Plugin\Description" />
     </type>
  
@@ -237,21 +259,36 @@ class Description
     }
  
     /**
-     * @param \Magento\Catalog\Block\Product\View\Description $subject
+     * @param \Magento\Catalog\Block\Product\View\Details $subject
      * @param array $result
      * @return array
      */
-    public function afterGetGroupChildNames(
-        \Magento\Catalog\Block\Product\View\Description $subject,
+    public function afterGetGroupSortedChildNames(
+        \Magento\Catalog\Block\Product\View\Details $subject,
         $result
     ) {
-        if ($subject->getProduct()->getData('sku') != 'VA20-SI-NA') {
+        if (!empty($this->tabs->getTabs())) {
             foreach ($this->tabs->getTabs() as $key => $tab) {
-                $result [] = 'product.info.details.' . $key;
+                $sortOrder = isset($tab['sortOrder']) ? $tab['sortOrder'] : 45;
+                $result = array_merge($result, [ $sortOrder => 'product.info.details.' . $key]);
             }
         }
- 
         return $result;
     }
 }
+```
+Now create template c renderer template:
+```
+<?php
+/**
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+?>
+<h3>Custom Block</h3>
+<div>
+    <h4>What is Lorem Ipsum?</h4>
+    <p>
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    </p>
+</div>
 ```
