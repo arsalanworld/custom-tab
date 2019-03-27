@@ -44,7 +44,7 @@ class NewTab implements ObserverInterface
         $layout = $observer->getLayout();
         $blocks = $layout->getAllBlocks();
 
-        foreach ($blocks as $key => $block) {
+        foreach ($blocks as $key => &$block) {
             /** @var \Magento\Framework\View\Element\Template $block */
             if ($block->getNameInLayout() == self::PARENT_BlOCK_NAME) {
 

@@ -21,21 +21,20 @@ class Description
     }
 
     /**
-     * @param \Magento\Catalog\Block\Product\View\Description $subject
+     * @param \Magento\Catalog\Block\Product\View\Details $subject
      * @param array $result
      * @return array
      */
-    public function afterGetGroupChildNames(
-        \Magento\Catalog\Block\Product\View\Description $subject,
+    public function afterGetGroupSortedChildNames(
+        \Magento\Catalog\Block\Product\View\Details $subject,
         $result
     ) {
-
-        if ($subject->getProduct()->getData('sku') != 'VA20-SI-NA') {
+        if (!empty($this->tabs->getTabs())) {
             foreach ($this->tabs->getTabs() as $key => $tab) {
-                $result [] = 'product.info.details.' . $key;
+                $sortOrder = isset($tab['sortOrder']) ? $tab['sortOrder'] : 45;
+                $result = array_merge($result, [ $sortOrder => 'product.info.details.' . $key]);
             }
         }
-
         return $result;
     }
 }
